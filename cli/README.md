@@ -21,7 +21,7 @@ Or build from source:
 
 ```bash
 cd cli
-go build -o pg-meta ./cmd/pg-meta
+go build -v -o pg-meta ./cmd/pg-meta
 ```
 
 ## CLI Usage
