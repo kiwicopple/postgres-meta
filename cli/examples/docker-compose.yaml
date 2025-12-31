@@ -1,0 +1,30 @@
+# Docker Compose for running the example Pokemon database
+#
+# Usage:
+#   docker compose up -d      # Start the database
+#   docker compose down -v    # Stop and remove volumes
+#
+# The schema.sql is automatically loaded on first startup.
+# Connect to: postgresql://postgres:postgres@localhost:5432/pokemon
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: pg-meta-example
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: pokemon
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d pokemon"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:

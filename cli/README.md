@@ -66,20 +66,22 @@ pg-meta generate types swift --db-url "$DATABASE_URL" --access-control public
 
 ## Examples
 
-See the [`examples/pokemon/`](examples/pokemon/) directory for a complete example including:
+See the [`examples/`](examples/) directory for a complete example including:
 
-- [`schema.sql`](examples/pokemon/schema.sql) - An advanced Pokemon database schema demonstrating:
+- [`schema.sql`](examples/schema.sql) - An advanced Pokemon database schema demonstrating:
   - Multiple enum types (pokemon_type, status_condition, move_category, etc.)
   - Composite types (pokemon_stats, geo_location)
   - Tables with foreign key relationships
   - Views with computed fields
   - PostgreSQL functions
 
-- Generated type files:
-  - [`types.ts`](examples/pokemon/types.ts) - TypeScript types
-  - [`types.py`](examples/pokemon/types.py) - Python Pydantic models
-  - [`types.go`](examples/pokemon/types.go) - Go structs
-  - [`types.swift`](examples/pokemon/types.swift) - Swift structs
+- [`docker-compose.yaml`](examples/docker-compose.yaml) - Docker Compose configuration to run the example database
+
+- Generated type files by language:
+  - [`typescript/types.ts`](examples/typescript/types.ts) - TypeScript types
+  - [`python/types.py`](examples/python/types.py) - Python Pydantic models
+  - [`go/types.go`](examples/go/types.go) - Go structs
+  - [`swift/types.swift`](examples/swift/types.swift) - Swift structs
 
 ## Library Usage
 
