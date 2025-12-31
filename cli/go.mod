@@ -1,4 +1,4 @@
-module github.com/supabase/postgres-meta/pg-meta-go
+module github.com/supabase/postgres-meta/cli
 
 go 1.21
 

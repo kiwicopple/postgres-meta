@@ -6,8 +6,8 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
-	"github.com/supabase/postgres-meta/pg-meta-go/pkg/generators"
-	"github.com/supabase/postgres-meta/pg-meta-go/pkg/pgmeta"
+	"github.com/supabase/postgres-meta/cli/pkg/generators"
+	"github.com/supabase/postgres-meta/cli/pkg/pgmeta"
 )
 
 var (

@@ -1,4 +1,4 @@
-# pg-meta-go
+# pg-meta CLI
 
 A Go library and CLI for PostgreSQL database introspection and type generation. This is part of the [postgres-meta](https://github.com/supabase/postgres-meta) project.
 
@@ -14,13 +14,13 @@ A Go library and CLI for PostgreSQL database introspection and type generation. 
 ## Installation
 
 ```bash
-go install github.com/supabase/postgres-meta/pg-meta-go/cmd/pg-meta@latest
+go install github.com/supabase/postgres-meta/cli/cmd/pg-meta@latest
 ```
 
 Or build from source:
 
 ```bash
-cd pg-meta-go
+cd cli
 go build -o pg-meta ./cmd/pg-meta
 ```
 
@@ -64,6 +64,23 @@ pg-meta generate types swift --db-url "$DATABASE_URL" --access-control public
 **Swift-specific:**
 - `--access-control`: Access control modifier (internal, public, private, package)
 
+## Examples
+
+See the [`examples/pokemon/`](examples/pokemon/) directory for a complete example including:
+
+- [`schema.sql`](examples/pokemon/schema.sql) - An advanced Pokemon database schema demonstrating:
+  - Multiple enum types (pokemon_type, status_condition, move_category, etc.)
+  - Composite types (pokemon_stats, geo_location)
+  - Tables with foreign key relationships
+  - Views with computed fields
+  - PostgreSQL functions
+
+- Generated type files:
+  - [`types.ts`](examples/pokemon/types.ts) - TypeScript types
+  - [`types.py`](examples/pokemon/types.py) - Python Pydantic models
+  - [`types.go`](examples/pokemon/types.go) - Go structs
+  - [`types.swift`](examples/pokemon/types.swift) - Swift structs
+
 ## Library Usage
 
 The library can be used directly in Go applications:
@@ -76,8 +93,8 @@ import (
     "fmt"
     "log"
 
-    "github.com/supabase/postgres-meta/pg-meta-go/pkg/pgmeta"
-    "github.com/supabase/postgres-meta/pg-meta-go/pkg/generators"
+    "github.com/supabase/postgres-meta/cli/pkg/pgmeta"
+    "github.com/supabase/postgres-meta/cli/pkg/generators"
 )
 
 func main() {

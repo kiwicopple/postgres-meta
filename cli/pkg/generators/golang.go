@@ -5,7 +5,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/supabase/postgres-meta/pg-meta-go/pkg/pgmeta"
+	"github.com/supabase/postgres-meta/cli/pkg/pgmeta"
 )
 
 // GoGenerator generates Go struct definitions

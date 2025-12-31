@@ -1,7 +1,7 @@
 package generators
 
 import (
-	"github.com/supabase/postgres-meta/pg-meta-go/pkg/pgmeta"
+	"github.com/supabase/postgres-meta/cli/pkg/pgmeta"
 )
 
 // Generator is the interface that all type generators must implement
