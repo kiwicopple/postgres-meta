@@ -114,3 +114,5 @@ bin/
 
 # postgres-meta
 openapi.json
+
+cli/pg-meta
