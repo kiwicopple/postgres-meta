@@ -81,11 +81,7 @@ func (c *Client) ListColumns(schemas []string) ([]PostgresColumn, error) {
 			NOT a.attnotnull AS is_nullable,
 			CASE
 				WHEN c.relkind = 'r' THEN TRUE
-				ELSE (
-					SELECT bool_or(
-						pg_column_is_updatable(c.oid::regclass, a.attnum, false)
-					)
-				)
+				ELSE pg_column_is_updatable(c.oid::regclass, a.attnum, false)
 			END AS is_updatable,
 			COALESCE(
 				(
