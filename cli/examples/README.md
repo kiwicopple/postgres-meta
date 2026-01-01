@@ -20,6 +20,7 @@ cd .. && go build -o pg-meta ./cmd/pg-meta && cd examples
 
 # Generate types for each language
 ../pg-meta generate types typescript --db-url "postgresql://postgres:postgres@localhost:5432/pokemon" > typescript/types.ts
+../pg-meta generate types drizzle --db-url "postgresql://postgres:postgres@localhost:5432/pokemon" > drizzle/schema.ts
 ../pg-meta generate types python --db-url "postgresql://postgres:postgres@localhost:5432/pokemon" > python/types.py
 ../pg-meta generate types go --db-url "postgresql://postgres:postgres@localhost:5432/pokemon" > go/types.go
 ../pg-meta generate types swift --db-url "postgresql://postgres:postgres@localhost:5432/pokemon" > swift/types.swift
@@ -35,7 +36,8 @@ docker compose down -v
 
 - `schema.sql` - Pokemon database schema with tables, enums, views, and functions
 - `docker-compose.yaml` - Docker Compose configuration to run PostgreSQL
-- `typescript/` - TypeScript type definitions
+- `typescript/` - TypeScript type definitions (Supabase-compatible)
+- `drizzle/` - Drizzle ORM schema definitions
 - `python/` - Python Pydantic models
 - `go/` - Go struct definitions
 - `swift/` - Swift struct definitions

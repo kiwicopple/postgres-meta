@@ -107,6 +107,8 @@ func GetGenerator(name string) Generator {
 		return &GoGenerator{}
 	case "swift":
 		return &SwiftGenerator{}
+	case "drizzle":
+		return &DrizzleGenerator{}
 	default:
 		return nil
 	}
@@ -114,5 +116,5 @@ func GetGenerator(name string) Generator {
 
 // GetAvailableGenerators returns a list of available generator names
 func GetAvailableGenerators() []string {
-	return []string{"typescript", "python", "go", "swift"}
+	return []string{"typescript", "python", "go", "swift", "drizzle"}
 }
