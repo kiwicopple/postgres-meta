@@ -1,7 +1,7 @@
 package pgmeta
 
 import (
-	"fmt"
+	"encoding/json"
 	"strings"
 )
 
@@ -11,79 +11,7 @@ func (c *Client) ListFunctions(schemas []string) ([]PostgresFunction, error) {
 		return []PostgresFunction{}, nil
 	}
 
-	placeholders := make([]string, len(schemas))
-	args := make([]interface{}, len(schemas))
-	for i, s := range schemas {
-		placeholders[i] = fmt.Sprintf("$%d", i+1)
-		args[i] = s
-	}
-
-	sql := fmt.Sprintf(`
-		SELECT
-			p.oid::int8 AS id,
-			n.nspname AS schema,
-			p.proname AS name,
-			l.lanname AS language,
-			CASE
-				WHEN l.lanname = 'internal' THEN p.prosrc
-				ELSE pg_get_functiondef(p.oid)
-			END AS definition,
-			pg_get_function_arguments(p.oid) AS argument_types,
-			pg_get_function_identity_arguments(p.oid) AS identity_argument_types,
-			p.prorettype::int8 AS return_type_id,
-			pg_catalog.format_type(p.prorettype, NULL) AS return_type,
-			NULLIF(rt.typrelid, 0)::int8 AS return_type_relation_id,
-			p.proretset AS is_set_returning_function,
-			CASE p.provolatile
-				WHEN 'i' THEN 'IMMUTABLE'
-				WHEN 's' THEN 'STABLE'
-				WHEN 'v' THEN 'VOLATILE'
-			END AS behavior,
-			p.prosecdef AS security_definer,
-			COALESCE(
-				(
-					SELECT array_agg(
-						json_build_object(
-							'mode', CASE modes.mode
-								WHEN 'i' THEN 'in'
-								WHEN 'o' THEN 'out'
-								WHEN 'b' THEN 'inout'
-								WHEN 'v' THEN 'variadic'
-								WHEN 't' THEN 'table'
-							END,
-							'name', COALESCE(names.name, ''),
-							'type_id', args.type_id::int8,
-							'has_default', p.pronargdefaults > 0 AND idx.i > (array_length(p.proargtypes, 1) - p.pronargdefaults)
-						)
-						ORDER BY idx.i
-					)
-					FROM unnest(
-						COALESCE(p.proallargtypes, p.proargtypes::oid[]),
-						COALESCE(p.proargmodes, ARRAY[]::"char"[]),
-						COALESCE(p.proargnames, ARRAY[]::text[])
-					) WITH ORDINALITY AS args(type_id, mode, name, i)
-					CROSS JOIN LATERAL (SELECT COALESCE(mode, 'i') AS mode) modes
-					CROSS JOIN LATERAL (SELECT NULLIF(name, '') AS name) names
-					CROSS JOIN LATERAL (SELECT i::int AS i) idx
-				),
-				ARRAY[]::json[]
-			) AS args,
-			pg_catalog.obj_description(p.oid, 'pg_proc') AS comment,
-			p.proconfig AS config_params
-		FROM pg_catalog.pg_proc p
-		JOIN pg_catalog.pg_namespace n ON n.oid = p.pronamespace
-		JOIN pg_catalog.pg_language l ON l.oid = p.prolang
-		LEFT JOIN pg_catalog.pg_type rt ON rt.oid = p.prorettype
-		WHERE n.nspname IN (%s)
-		  AND p.prokind = 'f'
-		  AND NOT EXISTS (
-			SELECT 1 FROM pg_catalog.pg_trigger t
-			WHERE t.tgfoid = p.oid
-		  )
-		ORDER BY n.nspname, p.proname
-	`, strings.Join(placeholders, ", "))
-
-	rows, err := c.query(sql, args...)
+	rows, err := c.query(functionsSQL, schemas)
 	if err != nil {
 		return nil, err
 	}
@@ -92,7 +20,7 @@ func (c *Client) ListFunctions(schemas []string) ([]PostgresFunction, error) {
 	var functions []PostgresFunction
 	for rows.Next() {
 		var f PostgresFunction
-		var argsJSON []map[string]interface{}
+		var argsJSON []byte
 		var comment *string
 		var configParams []string
 
@@ -108,15 +36,19 @@ func (c *Client) ListFunctions(schemas []string) ([]PostgresFunction, error) {
 		f.Comment = comment
 		f.Args = make([]FunctionArg, 0)
 
+		// Parse args from JSONB
 		if argsJSON != nil {
-			for _, arg := range argsJSON {
-				fa := FunctionArg{
-					Mode:       getString(arg, "mode"),
-					Name:       getString(arg, "name"),
-					TypeID:     getInt64(arg, "type_id"),
-					HasDefault: getBool(arg, "has_default"),
+			var args []map[string]interface{}
+			if err := json.Unmarshal(argsJSON, &args); err == nil {
+				for _, arg := range args {
+					fa := FunctionArg{
+						Mode:       getString(arg, "mode"),
+						Name:       getString(arg, "name"),
+						TypeID:     getInt64(arg, "type_id"),
+						HasDefault: getBool(arg, "has_default"),
+					}
+					f.Args = append(f.Args, fa)
 				}
-				f.Args = append(f.Args, fa)
 			}
 		}
 

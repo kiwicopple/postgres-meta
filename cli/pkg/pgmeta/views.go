@@ -1,38 +1,12 @@
 package pgmeta
 
-import (
-	"fmt"
-	"strings"
-)
-
 // ListViews returns all views in the specified schemas
 func (c *Client) ListViews(schemas []string) ([]PostgresView, error) {
 	if len(schemas) == 0 {
 		return []PostgresView{}, nil
 	}
 
-	placeholders := make([]string, len(schemas))
-	args := make([]interface{}, len(schemas))
-	for i, s := range schemas {
-		placeholders[i] = fmt.Sprintf("$%d", i+1)
-		args[i] = s
-	}
-
-	sql := fmt.Sprintf(`
-		SELECT
-			c.oid::int8 AS id,
-			nc.nspname AS schema,
-			c.relname AS name,
-			pg_catalog.pg_relation_is_updatable(c.oid, true) > 0 AS is_updatable,
-			pg_catalog.obj_description(c.oid, 'pg_class') AS comment
-		FROM pg_catalog.pg_class c
-		JOIN pg_catalog.pg_namespace nc ON nc.oid = c.relnamespace
-		WHERE c.relkind = 'v'
-		  AND nc.nspname IN (%s)
-		ORDER BY nc.nspname, c.relname
-	`, strings.Join(placeholders, ", "))
-
-	rows, err := c.query(sql, args...)
+	rows, err := c.query(viewsSQL, schemas)
 	if err != nil {
 		return nil, err
 	}
@@ -41,7 +15,7 @@ func (c *Client) ListViews(schemas []string) ([]PostgresView, error) {
 	var views []PostgresView
 	for rows.Next() {
 		var v PostgresView
-		if err := rows.Scan(&v.ID, &v.Schema, &v.Name, &v.IsUpdatable, &v.Comment); err != nil {
+		if err := rows.Scan(&v.ID, &v.Schema, &v.Name, &v.Definition, &v.Comment, &v.IsUpdatable); err != nil {
 			return nil, err
 		}
 		views = append(views, v)
@@ -56,28 +30,7 @@ func (c *Client) ListMaterializedViews(schemas []string) ([]PostgresMaterialized
 		return []PostgresMaterializedView{}, nil
 	}
 
-	placeholders := make([]string, len(schemas))
-	args := make([]interface{}, len(schemas))
-	for i, s := range schemas {
-		placeholders[i] = fmt.Sprintf("$%d", i+1)
-		args[i] = s
-	}
-
-	sql := fmt.Sprintf(`
-		SELECT
-			c.oid::int8 AS id,
-			nc.nspname AS schema,
-			c.relname AS name,
-			c.relispopulated AS is_populated,
-			pg_catalog.obj_description(c.oid, 'pg_class') AS comment
-		FROM pg_catalog.pg_class c
-		JOIN pg_catalog.pg_namespace nc ON nc.oid = c.relnamespace
-		WHERE c.relkind = 'm'
-		  AND nc.nspname IN (%s)
-		ORDER BY nc.nspname, c.relname
-	`, strings.Join(placeholders, ", "))
-
-	rows, err := c.query(sql, args...)
+	rows, err := c.query(materializedViewsSQL, schemas)
 	if err != nil {
 		return nil, err
 	}
@@ -86,7 +39,7 @@ func (c *Client) ListMaterializedViews(schemas []string) ([]PostgresMaterialized
 	var views []PostgresMaterializedView
 	for rows.Next() {
 		var v PostgresMaterializedView
-		if err := rows.Scan(&v.ID, &v.Schema, &v.Name, &v.IsPopulated, &v.Comment); err != nil {
+		if err := rows.Scan(&v.ID, &v.Schema, &v.Name, &v.Definition, &v.Comment, &v.IsPopulated); err != nil {
 			return nil, err
 		}
 		views = append(views, v)
@@ -101,27 +54,7 @@ func (c *Client) ListForeignTables(schemas []string) ([]PostgresForeignTable, er
 		return []PostgresForeignTable{}, nil
 	}
 
-	placeholders := make([]string, len(schemas))
-	args := make([]interface{}, len(schemas))
-	for i, s := range schemas {
-		placeholders[i] = fmt.Sprintf("$%d", i+1)
-		args[i] = s
-	}
-
-	sql := fmt.Sprintf(`
-		SELECT
-			c.oid::int8 AS id,
-			nc.nspname AS schema,
-			c.relname AS name,
-			pg_catalog.obj_description(c.oid, 'pg_class') AS comment
-		FROM pg_catalog.pg_class c
-		JOIN pg_catalog.pg_namespace nc ON nc.oid = c.relnamespace
-		WHERE c.relkind = 'f'
-		  AND nc.nspname IN (%s)
-		ORDER BY nc.nspname, c.relname
-	`, strings.Join(placeholders, ", "))
-
-	rows, err := c.query(sql, args...)
+	rows, err := c.query(foreignTablesSQL, schemas)
 	if err != nil {
 		return nil, err
 	}

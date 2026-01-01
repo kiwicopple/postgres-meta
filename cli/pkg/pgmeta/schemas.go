@@ -1,39 +1,14 @@
 package pgmeta
 
-import (
-	"fmt"
-	"strings"
-)
-
 // ListSchemas returns all schemas in the database
 func (c *Client) ListSchemas(opts GeneratorOptions) ([]PostgresSchema, error) {
-	sql := `
-		SELECT
-			n.oid::int8 AS id,
-			n.nspname AS name,
-			pg_catalog.pg_get_userbyid(n.nspowner) AS owner
-		FROM pg_catalog.pg_namespace n
-		WHERE n.nspname !~ '^pg_'
-		  AND n.nspname <> 'information_schema'
-	`
-
-	// Apply included/excluded schemas filter
-	if len(opts.IncludedSchemas) > 0 {
-		placeholders := make([]string, len(opts.IncludedSchemas))
-		for i := range opts.IncludedSchemas {
-			placeholders[i] = fmt.Sprintf("$%d", i+1)
-		}
-		sql += fmt.Sprintf(" AND n.nspname IN (%s)", strings.Join(placeholders, ", "))
+	// Ensure we pass an empty slice, not nil (nil becomes NULL in PostgreSQL,
+	// but empty slice becomes an empty array which works with cardinality())
+	includedSchemas := opts.IncludedSchemas
+	if includedSchemas == nil {
+		includedSchemas = []string{}
 	}
-
-	sql += " ORDER BY n.nspname"
-
-	var args []interface{}
-	for _, s := range opts.IncludedSchemas {
-		args = append(args, s)
-	}
-
-	rows, err := c.query(sql, args...)
+	rows, err := c.query(schemasSQL, includedSchemas)
 	if err != nil {
 		return nil, err
 	}

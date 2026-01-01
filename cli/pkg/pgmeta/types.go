@@ -118,8 +118,9 @@ type PostgresView struct {
 	ID          int64   `json:"id"`
 	Schema      string  `json:"schema"`
 	Name        string  `json:"name"`
-	IsUpdatable bool    `json:"is_updatable"`
+	Definition  string  `json:"definition"`
 	Comment     *string `json:"comment"`
+	IsUpdatable bool    `json:"is_updatable"`
 }
 
 // PostgresMaterializedView represents a materialized view
@@ -127,8 +128,9 @@ type PostgresMaterializedView struct {
 	ID          int64   `json:"id"`
 	Schema      string  `json:"schema"`
 	Name        string  `json:"name"`
-	IsPopulated bool    `json:"is_populated"`
+	Definition  string  `json:"definition"`
 	Comment     *string `json:"comment"`
+	IsPopulated bool    `json:"is_populated"`
 }
 
 // PostgresForeignTable represents a foreign table
