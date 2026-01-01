@@ -52,14 +52,14 @@ func (c *Client) ListFunctions(schemas []string) ([]PostgresFunction, error) {
 								WHEN 't' THEN 'table'
 							END,
 							'name', COALESCE(names.name, ''),
-							'type_id', types.type_id::int8,
+							'type_id', args.type_id::int8,
 							'has_default', p.pronargdefaults > 0 AND idx.i > (array_length(p.proargtypes, 1) - p.pronargdefaults)
 						)
 						ORDER BY idx.i
 					)
 					FROM unnest(
 						COALESCE(p.proallargtypes, p.proargtypes::oid[]),
-						COALESCE(p.proargmodes, ARRAY[]::char[]),
+						COALESCE(p.proargmodes, ARRAY[]::"char"[]),
 						COALESCE(p.proargnames, ARRAY[]::text[])
 					) WITH ORDINALITY AS args(type_id, mode, name, i)
 					CROSS JOIN LATERAL (SELECT COALESCE(mode, 'i') AS mode) modes

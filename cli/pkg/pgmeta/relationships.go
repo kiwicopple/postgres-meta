@@ -95,10 +95,7 @@ func (c *Client) ListRelationships(schemas []string) ([]PostgresRelationship, er
 		ORDER BY fk.schema, fk.relation, fk.conname
 	`, strings.Join(placeholders, ", "), strings.Join(placeholders, ", "))
 
-	// Duplicate the args for both IN clauses
-	allArgs := append(args, args...)
-
-	rows, err := c.query(sql, allArgs...)
+	rows, err := c.query(sql, args...)
 	if err != nil {
 		return nil, err
 	}
