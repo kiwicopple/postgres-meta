@@ -111,6 +111,8 @@ func GetGenerator(name string) Generator {
 		return &DrizzleGenerator{}
 	case "django":
 		return &DjangoGenerator{}
+	case "jsonschema":
+		return &JSONSchemaGenerator{}
 	default:
 		return nil
 	}
@@ -118,5 +120,5 @@ func GetGenerator(name string) Generator {
 
 // GetAvailableGenerators returns a list of available generator names
 func GetAvailableGenerators() []string {
-	return []string{"typescript", "python", "go", "swift", "drizzle", "django"}
+	return []string{"typescript", "python", "go", "swift", "drizzle", "django", "jsonschema"}
 }
