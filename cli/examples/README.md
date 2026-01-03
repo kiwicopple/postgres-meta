@@ -1,6 +1,6 @@
 # Examples
 
-This directory contains an example Pokemon database schema and generated types for each supported language.
+This directory contains an example Pokemon database schema and generated types for each supported language/framework.
 
 ## Quick Start
 
@@ -18,12 +18,14 @@ This starts PostgreSQL and automatically loads `schema.sql`.
 # Build the CLI (from the cli/ directory)
 cd .. && go build -o pg-meta ./cmd/pg-meta && cd examples
 
-# Generate types for each language
-../pg-meta generate types typescript --db-url "postgresql://postgres:postgres@localhost:5432/pokemon" > typescript/types.ts
-../pg-meta generate types drizzle --db-url "postgresql://postgres:postgres@localhost:5432/pokemon" > drizzle/schema.ts
-../pg-meta generate types python --db-url "postgresql://postgres:postgres@localhost:5432/pokemon" > python/types.py
-../pg-meta generate types go --db-url "postgresql://postgres:postgres@localhost:5432/pokemon" > go/types.go
-../pg-meta generate types swift --db-url "postgresql://postgres:postgres@localhost:5432/pokemon" > swift/types.swift
+# Generate all output types
+../pg-meta generate types typescript --db-url "postgresql://postgres:postgres@localhost:5432/pokemon" > output/typescript_types.ts
+../pg-meta generate types drizzle --db-url "postgresql://postgres:postgres@localhost:5432/pokemon" > output/typescript_drizzleorm.ts
+../pg-meta generate types python --db-url "postgresql://postgres:postgres@localhost:5432/pokemon" > output/python_types.py
+../pg-meta generate types django --db-url "postgresql://postgres:postgres@localhost:5432/pokemon" > output/python_django.py
+../pg-meta generate types go --db-url "postgresql://postgres:postgres@localhost:5432/pokemon" > output/go_types.go
+../pg-meta generate types swift --db-url "postgresql://postgres:postgres@localhost:5432/pokemon" > output/swift_types.swift
+../pg-meta generate types jsonschema --db-url "postgresql://postgres:postgres@localhost:5432/pokemon" > output/jsonschema.json
 ```
 
 ### 3. Cleanup
@@ -36,11 +38,14 @@ docker compose down -v
 
 - `schema.sql` - Pokemon database schema with tables, enums, views, and functions
 - `docker-compose.yaml` - Docker Compose configuration to run PostgreSQL
-- `typescript/` - TypeScript type definitions (Supabase-compatible)
-- `drizzle/` - Drizzle ORM schema definitions
-- `python/` - Python Pydantic models
-- `go/` - Go struct definitions
-- `swift/` - Swift struct definitions
+- `output/` - Generated type definitions:
+  - `typescript_types.ts` - TypeScript types (Supabase-compatible)
+  - `typescript_drizzleorm.ts` - Drizzle ORM schema definitions
+  - `python_types.py` - Python Pydantic models
+  - `python_django.py` - Django model definitions
+  - `go_types.go` - Go struct definitions
+  - `swift_types.swift` - Swift struct definitions
+  - `jsonschema.json` - JSON Schema definitions
 
 ## Schema Overview
 
@@ -82,3 +87,85 @@ The Pokemon schema includes:
 - `get_pokemon_calculated_stats()` - Get full stats for a Pokemon
 - `search_pokemon_by_type()` - Find Pokemon by type
 - `get_evolution_chain()` - Get evolution chain for a species
+
+## Generator Output Examples
+
+### TypeScript (Supabase)
+```typescript
+export type Database = {
+  public: {
+    Tables: {
+      pokemon: {
+        Row: { id: number; name: string; type1: Database["public"]["Enums"]["pokemon_type"]; ... }
+        Insert: { id?: number; name: string; type1: Database["public"]["Enums"]["pokemon_type"]; ... }
+        Update: { id?: number; name?: string; type1?: Database["public"]["Enums"]["pokemon_type"]; ... }
+      }
+    }
+  }
+}
+```
+
+### Drizzle ORM
+```typescript
+export const pokemonTypeEnum = pgEnum('pokemon_type', ['normal', 'fire', 'water', ...]);
+
+export const pokemon = pgTable('pokemon', {
+  id: serial('id').primaryKey(),
+  name: varchar('name', { length: 255 }).notNull(),
+  type1: pokemonTypeEnum('type1').notNull(),
+});
+```
+
+### Python (Pydantic)
+```python
+class Pokemon(BaseModel):
+    id: int = Field(alias="id")
+    name: str = Field(alias="name")
+    type1: PokemonType = Field(alias="type1")
+```
+
+### Django
+```python
+class Pokemon(models.Model):
+    id = models.AutoField(primary_key=True)
+    name = models.CharField(max_length=255)
+    type1 = models.CharField(max_length=255, choices=PokemonType.choices)
+
+    class Meta:
+        db_table = 'pokemon'
+```
+
+### Go
+```go
+type PokemonSelect struct {
+    Id    int32  `json:"id"`
+    Name  string `json:"name"`
+    Type1 string `json:"type1"`
+}
+```
+
+### Swift
+```swift
+struct Pokemon: Codable, Hashable, Sendable {
+    let id: Int32
+    let name: String
+    let type1: PokemonType
+}
+```
+
+### JSON Schema
+```json
+{
+  "$defs": {
+    "PokemonRow": {
+      "type": "object",
+      "properties": {
+        "id": { "type": "integer" },
+        "name": { "type": "string" },
+        "type1": { "type": "string", "enum": ["normal", "fire", "water", ...] }
+      },
+      "required": ["id", "name", "type1"]
+    }
+  }
+}
+```
