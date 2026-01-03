@@ -1,0 +1,449 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Database Schema",
+  "description": "JSON Schema definitions for database tables",
+  "type": "object",
+  "$defs": {
+    "BattleTerrain": {
+      "title": "battle_terrain",
+      "description": "Enum type: public.battle_terrain",
+      "type": "string",
+      "enum": ["normal", "electric", "grassy", "misty", "psychic"]
+    },
+    "EvolutionMethod": {
+      "title": "evolution_method",
+      "description": "Enum type: public.evolution_method",
+      "type": "string",
+      "enum": ["level_up", "trade", "item", "friendship", "time_of_day", "location", "special"]
+    },
+    "MoveCategory": {
+      "title": "move_category",
+      "description": "Enum type: public.move_category",
+      "type": "string",
+      "enum": ["physical", "special", "status"]
+    },
+    "PokemonNature": {
+      "title": "pokemon_nature",
+      "description": "Enum type: public.pokemon_nature",
+      "type": "string",
+      "enum": ["hardy", "lonely", "brave", "adamant", "naughty", "bold", "docile", "relaxed", "impish", "lax", "timid", "hasty", "serious", "jolly", "naive", "modest", "mild", "quiet", "bashful", "rash", "calm", "gentle", "sassy", "careful", "quirky"]
+    },
+    "PokemonType": {
+      "title": "pokemon_type",
+      "description": "Enum type: public.pokemon_type",
+      "type": "string",
+      "enum": ["normal", "fire", "water", "electric", "grass", "ice", "fighting", "poison", "ground", "flying", "psychic", "bug", "rock", "ghost", "dragon", "dark", "steel", "fairy"]
+    },
+    "StatusCondition": {
+      "title": "status_condition",
+      "description": "Enum type: public.status_condition",
+      "type": "string",
+      "enum": ["none", "burned", "frozen", "paralyzed", "poisoned", "badly_poisoned", "asleep"]
+    },
+    "WeatherCondition": {
+      "title": "weather_condition",
+      "description": "Enum type: public.weather_condition",
+      "type": "string",
+      "enum": ["clear", "sunny", "rain", "sandstorm", "hail", "snow", "fog"]
+    },
+    "AbilitiesRow": {
+      "title": "public.abilities (row)",
+      "type": "object",
+      "properties": {
+        "id": { "type": "integer" },
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "is_hidden": {
+          "anyOf": [{ "type": "boolean" }, { "type": "null" }]
+        },
+        "generation_introduced": { "type": "integer" },
+        "created_at": {
+          "anyOf": [{ "type": "string", "format": "date-time" }, { "type": "null" }]
+        }
+      },
+      "required": ["id", "name", "description", "generation_introduced"]
+    },
+    "AbilitiesInsert": {
+      "title": "public.abilities (insert)",
+      "type": "object",
+      "properties": {
+        "id": { "type": "integer" },
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "is_hidden": {
+          "anyOf": [{ "type": "boolean" }, { "type": "null" }]
+        },
+        "generation_introduced": { "type": "integer" },
+        "created_at": {
+          "anyOf": [{ "type": "string", "format": "date-time" }, { "type": "null" }]
+        }
+      },
+      "required": ["name", "description"]
+    },
+    "AbilitiesUpdate": {
+      "title": "public.abilities (update)",
+      "type": "object",
+      "properties": {
+        "id": { "type": "integer" },
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "is_hidden": {
+          "anyOf": [{ "type": "boolean" }, { "type": "null" }]
+        },
+        "generation_introduced": { "type": "integer" },
+        "created_at": {
+          "anyOf": [{ "type": "string", "format": "date-time" }, { "type": "null" }]
+        }
+      }
+    },
+    "PokemonRow": {
+      "title": "public.pokemon (row)",
+      "type": "object",
+      "properties": {
+        "id": { "type": "integer" },
+        "name": { "type": "string" },
+        "pokedex_number": { "type": "integer" },
+        "type1": { "type": "string", "enum": ["normal", "fire", "water", "electric", "grass", "ice", "fighting", "poison", "ground", "flying", "psychic", "bug", "rock", "ghost", "dragon", "dark", "steel", "fairy"] },
+        "type2": {
+          "anyOf": [
+            { "type": "string", "enum": ["normal", "fire", "water", "electric", "grass", "ice", "fighting", "poison", "ground", "flying", "psychic", "bug", "rock", "ghost", "dragon", "dark", "steel", "fairy"] },
+            { "type": "null" }
+          ]
+        },
+        "height_m": { "type": "number" },
+        "weight_kg": { "type": "number" },
+        "base_experience": { "type": "integer" },
+        "base_hp": { "type": "integer" },
+        "base_attack": { "type": "integer" },
+        "base_defense": { "type": "integer" },
+        "base_special_attack": { "type": "integer" },
+        "base_special_defense": { "type": "integer" },
+        "base_speed": { "type": "integer" },
+        "sprite_url": {
+          "anyOf": [{ "type": "string" }, { "type": "null" }]
+        },
+        "is_legendary": {
+          "anyOf": [{ "type": "boolean" }, { "type": "null" }]
+        },
+        "is_mythical": {
+          "anyOf": [{ "type": "boolean" }, { "type": "null" }]
+        },
+        "generation_introduced": { "type": "integer" },
+        "created_at": {
+          "anyOf": [{ "type": "string", "format": "date-time" }, { "type": "null" }]
+        }
+      },
+      "required": ["id", "name", "pokedex_number", "type1", "height_m", "weight_kg", "base_experience", "base_hp", "base_attack", "base_defense", "base_special_attack", "base_special_defense", "base_speed", "generation_introduced"]
+    },
+    "PokemonInsert": {
+      "title": "public.pokemon (insert)",
+      "type": "object",
+      "properties": {
+        "id": { "type": "integer" },
+        "name": { "type": "string" },
+        "pokedex_number": { "type": "integer" },
+        "type1": { "type": "string", "enum": ["normal", "fire", "water", "electric", "grass", "ice", "fighting", "poison", "ground", "flying", "psychic", "bug", "rock", "ghost", "dragon", "dark", "steel", "fairy"] },
+        "type2": {
+          "anyOf": [
+            { "type": "string", "enum": ["normal", "fire", "water", "electric", "grass", "ice", "fighting", "poison", "ground", "flying", "psychic", "bug", "rock", "ghost", "dragon", "dark", "steel", "fairy"] },
+            { "type": "null" }
+          ]
+        },
+        "height_m": { "type": "number" },
+        "weight_kg": { "type": "number" },
+        "base_experience": { "type": "integer" },
+        "base_hp": { "type": "integer" },
+        "base_attack": { "type": "integer" },
+        "base_defense": { "type": "integer" },
+        "base_special_attack": { "type": "integer" },
+        "base_special_defense": { "type": "integer" },
+        "base_speed": { "type": "integer" },
+        "sprite_url": {
+          "anyOf": [{ "type": "string" }, { "type": "null" }]
+        },
+        "is_legendary": {
+          "anyOf": [{ "type": "boolean" }, { "type": "null" }]
+        },
+        "is_mythical": {
+          "anyOf": [{ "type": "boolean" }, { "type": "null" }]
+        },
+        "generation_introduced": { "type": "integer" },
+        "created_at": {
+          "anyOf": [{ "type": "string", "format": "date-time" }, { "type": "null" }]
+        }
+      },
+      "required": ["name", "pokedex_number", "type1", "height_m", "weight_kg", "base_experience", "base_hp", "base_attack", "base_defense", "base_special_attack", "base_special_defense", "base_speed"]
+    },
+    "PokemonUpdate": {
+      "title": "public.pokemon (update)",
+      "type": "object",
+      "properties": {
+        "id": { "type": "integer" },
+        "name": { "type": "string" },
+        "pokedex_number": { "type": "integer" },
+        "type1": { "type": "string", "enum": ["normal", "fire", "water", "electric", "grass", "ice", "fighting", "poison", "ground", "flying", "psychic", "bug", "rock", "ghost", "dragon", "dark", "steel", "fairy"] },
+        "type2": {
+          "anyOf": [
+            { "type": "string", "enum": ["normal", "fire", "water", "electric", "grass", "ice", "fighting", "poison", "ground", "flying", "psychic", "bug", "rock", "ghost", "dragon", "dark", "steel", "fairy"] },
+            { "type": "null" }
+          ]
+        },
+        "height_m": { "type": "number" },
+        "weight_kg": { "type": "number" },
+        "base_experience": { "type": "integer" },
+        "base_hp": { "type": "integer" },
+        "base_attack": { "type": "integer" },
+        "base_defense": { "type": "integer" },
+        "base_special_attack": { "type": "integer" },
+        "base_special_defense": { "type": "integer" },
+        "base_speed": { "type": "integer" },
+        "sprite_url": {
+          "anyOf": [{ "type": "string" }, { "type": "null" }]
+        },
+        "is_legendary": {
+          "anyOf": [{ "type": "boolean" }, { "type": "null" }]
+        },
+        "is_mythical": {
+          "anyOf": [{ "type": "boolean" }, { "type": "null" }]
+        },
+        "generation_introduced": { "type": "integer" },
+        "created_at": {
+          "anyOf": [{ "type": "string", "format": "date-time" }, { "type": "null" }]
+        }
+      }
+    },
+    "TrainersRow": {
+      "title": "public.trainers (row)",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "format": "uuid" },
+        "username": { "type": "string" },
+        "email": { "type": "string" },
+        "display_name": {
+          "anyOf": [{ "type": "string" }, { "type": "null" }]
+        },
+        "avatar_url": {
+          "anyOf": [{ "type": "string" }, { "type": "null" }]
+        },
+        "trainer_level": { "type": "integer" },
+        "experience_points": { "type": "integer" },
+        "pokecoin_balance": { "type": "integer" },
+        "stardust_balance": { "type": "integer" },
+        "created_at": {
+          "anyOf": [{ "type": "string", "format": "date-time" }, { "type": "null" }]
+        },
+        "last_login_at": {
+          "anyOf": [{ "type": "string", "format": "date-time" }, { "type": "null" }]
+        }
+      },
+      "required": ["id", "username", "email", "trainer_level", "experience_points", "pokecoin_balance", "stardust_balance"]
+    },
+    "TrainersInsert": {
+      "title": "public.trainers (insert)",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "format": "uuid" },
+        "username": { "type": "string" },
+        "email": { "type": "string" },
+        "display_name": {
+          "anyOf": [{ "type": "string" }, { "type": "null" }]
+        },
+        "avatar_url": {
+          "anyOf": [{ "type": "string" }, { "type": "null" }]
+        },
+        "trainer_level": { "type": "integer" },
+        "experience_points": { "type": "integer" },
+        "pokecoin_balance": { "type": "integer" },
+        "stardust_balance": { "type": "integer" },
+        "created_at": {
+          "anyOf": [{ "type": "string", "format": "date-time" }, { "type": "null" }]
+        },
+        "last_login_at": {
+          "anyOf": [{ "type": "string", "format": "date-time" }, { "type": "null" }]
+        }
+      },
+      "required": ["username", "email"]
+    },
+    "TrainersUpdate": {
+      "title": "public.trainers (update)",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "format": "uuid" },
+        "username": { "type": "string" },
+        "email": { "type": "string" },
+        "display_name": {
+          "anyOf": [{ "type": "string" }, { "type": "null" }]
+        },
+        "avatar_url": {
+          "anyOf": [{ "type": "string" }, { "type": "null" }]
+        },
+        "trainer_level": { "type": "integer" },
+        "experience_points": { "type": "integer" },
+        "pokecoin_balance": { "type": "integer" },
+        "stardust_balance": { "type": "integer" },
+        "created_at": {
+          "anyOf": [{ "type": "string", "format": "date-time" }, { "type": "null" }]
+        },
+        "last_login_at": {
+          "anyOf": [{ "type": "string", "format": "date-time" }, { "type": "null" }]
+        }
+      }
+    },
+    "BattlesRow": {
+      "title": "public.battles (row)",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "format": "uuid" },
+        "trainer1_id": { "type": "string", "format": "uuid" },
+        "trainer2_id": { "type": "string", "format": "uuid" },
+        "winner_id": {
+          "anyOf": [{ "type": "string", "format": "uuid" }, { "type": "null" }]
+        },
+        "format": { "type": "string" },
+        "started_at": {
+          "anyOf": [{ "type": "string", "format": "date-time" }, { "type": "null" }]
+        },
+        "ended_at": {
+          "anyOf": [{ "type": "string", "format": "date-time" }, { "type": "null" }]
+        },
+        "turns": {
+          "anyOf": [{ "type": "integer" }, { "type": "null" }]
+        },
+        "weather": {
+          "anyOf": [
+            { "type": "string", "enum": ["clear", "sunny", "rain", "sandstorm", "hail", "snow", "fog"] },
+            { "type": "null" }
+          ]
+        },
+        "terrain": {
+          "anyOf": [
+            { "type": "string", "enum": ["normal", "electric", "grassy", "misty", "psychic"] },
+            { "type": "null" }
+          ]
+        },
+        "is_ranked": {
+          "anyOf": [{ "type": "boolean" }, { "type": "null" }]
+        },
+        "replay_data": {
+          "anyOf": [{}, { "type": "null" }]
+        }
+      },
+      "required": ["id", "trainer1_id", "trainer2_id", "format"]
+    },
+    "BattlesInsert": {
+      "title": "public.battles (insert)",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "format": "uuid" },
+        "trainer1_id": { "type": "string", "format": "uuid" },
+        "trainer2_id": { "type": "string", "format": "uuid" },
+        "winner_id": {
+          "anyOf": [{ "type": "string", "format": "uuid" }, { "type": "null" }]
+        },
+        "format": { "type": "string" },
+        "started_at": {
+          "anyOf": [{ "type": "string", "format": "date-time" }, { "type": "null" }]
+        },
+        "ended_at": {
+          "anyOf": [{ "type": "string", "format": "date-time" }, { "type": "null" }]
+        },
+        "turns": {
+          "anyOf": [{ "type": "integer" }, { "type": "null" }]
+        },
+        "weather": {
+          "anyOf": [
+            { "type": "string", "enum": ["clear", "sunny", "rain", "sandstorm", "hail", "snow", "fog"] },
+            { "type": "null" }
+          ]
+        },
+        "terrain": {
+          "anyOf": [
+            { "type": "string", "enum": ["normal", "electric", "grassy", "misty", "psychic"] },
+            { "type": "null" }
+          ]
+        },
+        "is_ranked": {
+          "anyOf": [{ "type": "boolean" }, { "type": "null" }]
+        },
+        "replay_data": {
+          "anyOf": [{}, { "type": "null" }]
+        }
+      },
+      "required": ["trainer1_id", "trainer2_id", "format"]
+    },
+    "BattlesUpdate": {
+      "title": "public.battles (update)",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "format": "uuid" },
+        "trainer1_id": { "type": "string", "format": "uuid" },
+        "trainer2_id": { "type": "string", "format": "uuid" },
+        "winner_id": {
+          "anyOf": [{ "type": "string", "format": "uuid" }, { "type": "null" }]
+        },
+        "format": { "type": "string" },
+        "started_at": {
+          "anyOf": [{ "type": "string", "format": "date-time" }, { "type": "null" }]
+        },
+        "ended_at": {
+          "anyOf": [{ "type": "string", "format": "date-time" }, { "type": "null" }]
+        },
+        "turns": {
+          "anyOf": [{ "type": "integer" }, { "type": "null" }]
+        },
+        "weather": {
+          "anyOf": [
+            { "type": "string", "enum": ["clear", "sunny", "rain", "sandstorm", "hail", "snow", "fog"] },
+            { "type": "null" }
+          ]
+        },
+        "terrain": {
+          "anyOf": [
+            { "type": "string", "enum": ["normal", "electric", "grassy", "misty", "psychic"] },
+            { "type": "null" }
+          ]
+        },
+        "is_ranked": {
+          "anyOf": [{ "type": "boolean" }, { "type": "null" }]
+        },
+        "replay_data": {
+          "anyOf": [{}, { "type": "null" }]
+        }
+      }
+    }
+  },
+  "properties": {
+    "Abilities": {
+      "type": "object",
+      "properties": {
+        "Row": { "$ref": "#/$defs/AbilitiesRow" },
+        "Insert": { "$ref": "#/$defs/AbilitiesInsert" },
+        "Update": { "$ref": "#/$defs/AbilitiesUpdate" }
+      }
+    },
+    "Pokemon": {
+      "type": "object",
+      "properties": {
+        "Row": { "$ref": "#/$defs/PokemonRow" },
+        "Insert": { "$ref": "#/$defs/PokemonInsert" },
+        "Update": { "$ref": "#/$defs/PokemonUpdate" }
+      }
+    },
+    "Trainers": {
+      "type": "object",
+      "properties": {
+        "Row": { "$ref": "#/$defs/TrainersRow" },
+        "Insert": { "$ref": "#/$defs/TrainersInsert" },
+        "Update": { "$ref": "#/$defs/TrainersUpdate" }
+      }
+    },
+    "Battles": {
+      "type": "object",
+      "properties": {
+        "Row": { "$ref": "#/$defs/BattlesRow" },
+        "Insert": { "$ref": "#/$defs/BattlesInsert" },
+        "Update": { "$ref": "#/$defs/BattlesUpdate" }
+      }
+    }
+  }
+}
