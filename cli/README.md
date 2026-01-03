@@ -6,13 +6,16 @@ A Go library and CLI for PostgreSQL database introspection and type generation. 
 
 - **Database Introspection**: Extract metadata from PostgreSQL databases including tables, views, columns, relationships, functions, and types
 - **Type Generation**: Generate type definitions for multiple languages and frameworks:
-  - **TypeScript**: Supabase-compatible types for PostgREST clients
-  - **Drizzle ORM**: TypeScript schema definitions for Drizzle ORM
-  - **Python**: Pydantic BaseModel classes and TypedDict types
-  - **Django**: Django model definitions with ForeignKey relationships
+  - **TypeScript**
+    - Supabase client types
+    - Drizzle ORM schemas
+    - Kysely type definitions
+  - **Python**
+    - Pydantic models
+    - Django models
   - **Go**: Struct definitions with JSON tags
   - **Swift**: Struct definitions with Codable conformance
-  - **JSON Schema**: JSON Schema (draft 2020-12) definitions for validation
+  - **JSON Schema**: Validation schemas (draft 2020-12)
 
 ## Installation
 
@@ -32,25 +35,28 @@ go build -v -o pg-meta ./cmd/pg-meta
 ### Generate Types
 
 ```bash
-# Generate TypeScript types (Supabase client compatible)
+# TypeScript - Supabase client types
 pg-meta generate types typescript --db-url "postgresql://user:pass@localhost:5432/mydb"
 
-# Generate Drizzle ORM schema
+# TypeScript - Drizzle ORM schema
 pg-meta generate types drizzle --db-url "$DATABASE_URL"
 
-# Generate Python Pydantic models
+# TypeScript - Kysely types
+pg-meta generate types kysely --db-url "$DATABASE_URL"
+
+# Python - Pydantic models
 pg-meta generate types python --db mydb --user postgres --password secret
 
-# Generate Django models
+# Python - Django models
 pg-meta generate types django --db-url "$DATABASE_URL"
 
-# Generate Go structs
+# Go structs
 pg-meta generate types go --db-url "$DATABASE_URL"
 
-# Generate Swift structs
+# Swift structs
 pg-meta generate types swift --db-url "$DATABASE_URL" --access-control public
 
-# Generate JSON Schema
+# JSON Schema
 pg-meta generate types jsonschema --db-url "$DATABASE_URL"
 ```
 
@@ -79,15 +85,26 @@ pg-meta generate types jsonschema --db-url "$DATABASE_URL"
 ## Generators
 
 ### TypeScript
+
+#### Supabase (`typescript`)
 Generates Supabase-compatible type definitions for use with `@supabase/supabase-js`. Includes `Database` type with `Tables`, `Views`, `Functions`, and `Enums`.
 
-### Drizzle ORM
+#### Drizzle ORM (`drizzle`)
 Generates Drizzle ORM schema definitions with `pgTable`, `pgEnum`, and `relations`. Ready to use with Drizzle Kit for migrations.
 
+#### Kysely (`kysely`)
+Generates Kysely type definitions with:
+- Table interfaces using `ColumnType` for insert/update behavior
+- `Generated<T>` for auto-increment columns
+- `Selectable`, `Insertable`, `Updateable` type aliases
+- `Database` interface for type-safe queries
+
 ### Python
+
+#### Pydantic (`python`)
 Generates Pydantic `BaseModel` classes for row types and `TypedDict` for insert/update operations. Includes proper type hints for all PostgreSQL types.
 
-### Django
+#### Django (`django`)
 Generates Django model classes with:
 - `models.Model` base classes
 - `TextChoices` for PostgreSQL enums
@@ -96,13 +113,13 @@ Generates Django model classes with:
 - `Meta` class with `db_table` configuration
 - Unmanaged models for views (`managed = False`)
 
-### Go
+### Go (`go`)
 Generates Go struct definitions with JSON tags. Includes separate structs for Select, Insert, and Update operations.
 
-### Swift
+### Swift (`swift`)
 Generates Swift struct definitions with `Codable` conformance. Supports access control modifiers and includes enums as `String` enums.
 
-### JSON Schema
+### JSON Schema (`jsonschema`)
 Generates JSON Schema (draft 2020-12) definitions with:
 - Separate Row/Insert/Update schemas per table
 - Enum definitions in `$defs`
@@ -124,13 +141,19 @@ See the [`examples/`](examples/) directory for a complete example including:
 - [`docker-compose.yaml`](examples/docker-compose.yaml) - Docker Compose configuration to run the example database
 
 - Generated output files in [`output/`](examples/output/):
-  - `typescript_types.ts` - TypeScript types
-  - `typescript_drizzleorm.ts` - Drizzle ORM schema
-  - `python_types.py` - Python Pydantic models
-  - `python_django.py` - Django models
-  - `go_types.go` - Go structs
-  - `swift_types.swift` - Swift structs
-  - `jsonschema.json` - JSON Schema definitions
+  - **TypeScript**
+    - `typescript_types.ts` - Supabase client types
+    - `typescript_drizzleorm.ts` - Drizzle ORM schema
+    - `typescript_kysely.ts` - Kysely types
+  - **Python**
+    - `python_types.py` - Pydantic models
+    - `python_django.py` - Django models
+  - **Go**
+    - `go_types.go` - Go structs
+  - **Swift**
+    - `swift_types.swift` - Swift structs
+  - **JSON Schema**
+    - `jsonschema.json` - JSON Schema definitions
 
 ## Library Usage
 
@@ -167,12 +190,10 @@ func main() {
         log.Fatal(err)
     }
 
-    // Generate types (typescript, python, go, swift, drizzle, django, jsonschema)
-    gen := generators.GetGenerator("typescript")
-    genOpts := generators.Options{
-        DetectOneToOneRelationships: true,
-    }
-    output, err := gen.Generate(meta, genOpts)
+    // Available generators:
+    // typescript, drizzle, kysely, python, django, go, swift, jsonschema
+    gen := generators.GetGenerator("kysely")
+    output, err := gen.Generate(meta, generators.Options{})
     if err != nil {
         log.Fatal(err)
     }
